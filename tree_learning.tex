@@ -1,0 +1,106 @@
+%
+% File acl2018.tex
+%
+%% Based on the style files for ACL-2017, with some changes, which were, in turn,
+%% Based on the style files for ACL-2015, with some improvements
+%%  taken from the NAACL-2016 style
+%% Based on the style files for ACL-2014, which were, in turn,
+%% based on ACL-2013, ACL-2012, ACL-2011, ACL-2010, ACL-IJCNLP-2009,
+%% EACL-2009, IJCNLP-2008...
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{acl2018}
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\aclfinalcopy % Uncomment this line for the final submission
+%\def\aclpaperid{***} %  Enter the acl Paper ID here
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\usepackage[margin=0.65in]{geometry}
+
+\usepackage{color}
+\newcommand{\lhu}[1]{\textcolor{red}{\bf \small [LHU-- #1]}}
+\newcommand{\jcs}[1]{\noindent{\textcolor{green}{\{{\bf jcs:} {\em #1}\}}}}
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+%\setitemize{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
+
+
+
+
+\title{Tree Learning}
+
+\author{\quad Yogitha Chilukuri \quad Jo\~{a}o Sedoc \quad Lyle Ungar\\
+  University of Pennsylvania\\
+  {\tt \{yogithac,joao,ungar\}@seas.upenn.edu}
+}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+Our research focuses on the ability of neural methods to learn how to transduce (i.e. translate) one tree structure into another by a sequence of tree operations.
+The sequence-to-sequence (Seq2Seq) model has led to a revolution in generative methods for neural encoding and decoding \citep{sutskever2014sequence}. Seq2Seq allowed for the encoding or compression of the initial input stream and a generative transformation sequence. From the point of view of tree transduction, Seq2Seq implicitly incorporates tree structure, unlike other methods which explicitly operate on trees.  
+Intuitively, Seq2Seq can be thought of as equivalent to Seq2Tree, followed by Tree2Tree, and finally Tree2Seq. We show that while mathematically equivalent, for neural networks the structure can radically change what the model is able to learn.
+
+Tree transduction is an important problem for many tasks including neural syntactic machine translation \citep{cowan2008tree,razmara2011application,wang2007chinese}, mapping sentences to functional programs \citep{alvarez2017tree}, and specialized program translation \citep{alur2012streaming}.
+Syntax based (tree-to-tree) machine translation models produced state-of-the-art results for many years \citep{cowan2008tree,razmara2011application}. 
+
+Both Seq2Tree~\citep{aharoni2017towards,Zhang2015-bg,Dong2016-qq} and Tree2Seq~\citep{eriguchi2016character} have been explored. \citet{zhou2018tree} used tree methods for neural dialog generation. However, until very recently tree-to-tree encoding and decoding has been largely ignored. 
+This, in spite of the fact that tree transduction and tree grammars have a long tradition  \citep{engelfriet1975bottom,graehl2004training,cowan2008tree}. 
+
+In this work we evaluate Seq2Seq, Seq2Tree and Tree2Tree using synthetic tree transduction datasets to specifically assess how the architecture effects what the models can learn.
+
+\paragraph{Experiments}
+We evaluated the different methods using tree edit distance (TED) \citep{tai1979tree,bille2005survey} between the predicted tree and the actual tree. TED is the number of insertions, deletions, and modifications to make the two trees equivalent, while aligning the trees. In order to assess the tree-to-tree transduction rules which the models could learn, we chose four standard tree tasks 1) tree copy (equivalent to one-to-one word translation), 2) tree reordering, 3) node relabeling, and 4) node and subtree deletion. Our experiments are similar to those of \citet{grefenstette2015learning}; however, we explicitly isolate complex tree reordering, subtree deletion, and context sensitive relabeling. 
+
+We broke down our experiments into two components, namely, the evaluation of the Tree2Tree model and the Seq2Tree model. For the Tree2Tree transduction, we implemented the TreeLSTM encoder \citep{Zhang2015-bg} and a Depth First Search decoder and for the Seq2Tree transduction model we implemented a sequential encoder and the Doubly-Recurrent Breadth First Search decoder \citep{alvarez2017tree}. We have evaluated with the tree copy and node relabeling operations. The results are shown in Table~\ref{tab:t2tresults}.
+\begin{table*}[bht!]
+    \centering
+    \begin{tabular}{l l|c c c }
+         {\bf Task} & {\bf Method} &  & {\bf Tree Depth}  & \\ 
+         & & 3 & 4 & 5  \\ \hline
+         & Seq2Seq & 0.04& 0.12 & 0.98 \\
+         Simple Relabeling & Seq2Seq-Attn & {\bf 0} & {\bf 0} & 0.36 \\
+         & NTT & {\bf 0} & {\bf 0} & {\bf 0} \\  & Seq2Tree & {\bf 0} & * & 1.076 \\ \hline
+         & Seq2Seq & 0.55 & 1.40 & 3.40 \\
+         Complex Relabeling & Seq2Seq-Attn & 0.27 & 1.05 & 2.32 \\
+         & NTT & {\bf 0.17} & {\bf 0.41} & {\bf 0.96} \\
+          & Seq2Tree & 9.01 & 10.36 &  14.00 \\ \hline
+         
+         
+    \end{tabular}
+    \caption{Tree edit distance for the tree tasks of tree copying (Copy),  node relabeling (Relabeling). The models are sequence-to-sequence
+    %~\citep{sutskever2014sequence}
+    (Seq2Seq), sequence-to-sequence with attention
+    %~\citep{bahdanau2014neural} 
+    (Seq2Seq-Attn), and our neural tree2tree transducer method (NTT) and our Seq2Tree transducer method. * indicates work in progress.}
+    \label{tab:t2tresults}
+\end{table*}
+\paragraph{Discussion and Future Work}
+This is a work in progress and our future work involves experimenting with all the above mentioned tree operations and depths. We intend to improvise on our Seq2Tree model and compare it with our Tree2Tree model. Our results indicate that the Tree2Tree model is able to predict reasonable tree structures from encoded vector representations and outperforms the Seq2Seq model.
+
+
+
+
+
+\bibliography{tree_learning}
+\bibliographystyle{acl_natbib}
+
+
+
+\end{document}

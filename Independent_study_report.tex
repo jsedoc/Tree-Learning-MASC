@@ -1,0 +1,133 @@
+%
+% File acl2018.tex
+%
+%% Based on the style files for ACL-2017, with some changes, which were, in turn,
+%% Based on the style files for ACL-2015, with some improvements
+%%  taken from the NAACL-2016 style
+%% Based on the style files for ACL-2014, which were, in turn,
+%% based on ACL-2013, ACL-2012, ACL-2011, ACL-2010, ACL-IJCNLP-2009,
+%% EACL-2009, IJCNLP-2008...
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{acl2018}
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\aclfinalcopy % Uncomment this line for the final submission
+%\def\aclpaperid{***} %  Enter the acl Paper ID here
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\usepackage[margin=0.65in]{geometry}
+
+\usepackage{color}
+\newcommand{\lhu}[1]{\textcolor{red}{\bf \small [LHU-- #1]}}
+\newcommand{\jcs}[1]{\noindent{\textcolor{green}{\{{\bf jcs:} {\em #1}\}}}}
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+%\setitemize{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
+
+
+
+
+\title{Tree Learning}
+
+\author{\quad Yogitha Chilukuri\\
+  University of Pennsylvania\\
+  {\tt yogithac@seas.upenn.edu}
+}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+This work focuses on the ability of neural methods to learn how to transduce (i.e. translate) one tree structure into another by a sequence of tree operations.
+The sequence-to-sequence (Seq2Seq) model has led to a revolution in generative methods for neural encoding and decoding \citep{sutskever2014sequence}. Seq2Seq allowed for the encoding or compression of the initial input stream and a generative transformation sequence. From the point of view of tree transduction, Seq2Seq implicitly incorporates tree structure, unlike other methods which explicitly operate on trees.  
+Intuitively, Seq2Seq can be thought of as equivalent to Seq2Tree, followed by Tree2Tree, and finally Tree2Seq. We show that while mathematically equivalent, for neural networks the structure can radically change what the model is able to learn.
+
+Tree transduction is an important problem for many tasks including neural syntactic machine translation \citep{cowan2008tree,razmara2011application,wang2007chinese}, mapping sentences to functional programs \citep{alvarez2017tree}, and specialized program translation \citep{alur2012streaming}.
+Syntax based (tree-to-tree) machine translation models produced state-of-the-art results for many years \citep{cowan2008tree,razmara2011application}. 
+
+In this work I have implemented the Doubly-Recurrent Breadth First Search  \citep{alvarez2017tree} Seq2Tree model and evaluated it using synthetic tree transduction datasets to specifically assess how the architecture effects what the models can learn. 
+
+\paragraph{Doubly Recurrent Neural Network (DRNN) Model}
+
+The crux of this model is a doubly recurrent neural network which separately models the flow of information between parent and child nodes, and between siblings. Each of the relationships is modeled by a separate recurrent network.
+
+The DRNN decoder is a top down decoder. Each cell in the DRNN decoder, has two inputs, namely one coming from it's parent and one from it's previous sibling. Each node i with parent p(i) and previous sibling s(i), the ancestral and fraternal hidden states are updated as follows:
+\[h_{i}^{a} = g^{a}(h_{p(i)}^{a}, x_{p(i)})\] 
+\[h_{i}^{f} = g^{s}(h_{s(i)}^{f}, x_{s(i)})\]
+where $x_{p(i)}$ and $x_{s(i)}$ are the vectors representing the previous parent's and sibling's value respectively. The hidden ancestral and fraternal states are then combined to obtain a predictive hidden state:
+\[h_{i}^{pred} = tanh(U^ah_{i}^{a} + U^fh_{i}^{f})\] 
+where $U^a$ and $U_f$ are learnable parameters. 
+
+For each node i, the DRNN model predicts the topology of the tree by doing the following:
+\[p_{i}^{a} = \sigma{(u^a.h_{i}^{(pred)})}\]
+\[p_{i}^{f} = \sigma{(u^f.h_{i}^{(pred)})}\]
+where the value of $p_{i}^{a}$ indicates if node i has children and $p_{i}^{f}$ indicates the probability of the node i having a sibling. 
+In the DRNN model, the topological information is given as input to the label prediction layer to account for the fact that the label of a node will likely be influenced by the context and also by the type of node namely terminal or non terminal. Therefor the lable of a node is predicted as:
+\[o_{i} = softmax(Wh_{i}^{pred} + \alpha_{i}v^{a} + \varphi_{i}v^{f})\]
+where \[\alpha_{i}, \varphi_{i}\in\{0,1\}\] and indicate the topological decisions and $v^{a}$, $v^{f}$ are learnable offset parameters.
+
+\paragraph{Training procedure}
+The encoder is a sequential LSTM encoder with 256 hidden layers and all hidden layers are initially initialized to zero. The decoder hidden layer is initialized with encoder's last hidden layer output. The learning rate is chosen to be 0.05.
+The loss has two components namely from the label and the topology. The label loss is calculated by taking cross entropy loss of $o_{i}$ wrt true label $x_{i}$. The topological loss is calculated by computing the binary cross entropy loss of $p_{i}^{a}$ and $p_{i}^{f}$ wrt to the gold topological standards.
+\[L(\hat{x}) = L(label) + L(topology)\]
+Teacher forcing is used during the training time, ie the loss is computed with the predicted values and backpropogated. After back propogating, the predictions are replaced with the true gold labels, so that all child and sibling nodes get the correct values. 
+
+
+\paragraph{Evaluation}
+In order to assess the tree-to-tree transduction rules which the models could learn, we chose four standard tree tasks 1) tree copy (equivalent to one-to-one word translation) and 2) node relabeling. Our experiments are similar to those of \citet{grefenstette2015learning}; however, we explicitly isolate complex tree reordering, subtree deletion, and context sensitive relabeling. 
+
+We evaluated the different methods using tree edit distance (TED) \citep{tai1979tree,bille2005survey} between the predicted tree and the actual tree. TED is the number of insertions, deletions, and modifications to make the two trees equivalent, while aligning the trees.  
+The results are shown in Table~\ref{tab:t2tresults}.
+\begin{table*}[h!]
+    \centering
+    \begin{tabular}{l l|c c c }
+         {\bf Task} & {\bf Method} &  & {\bf Tree Depth}  & \\ 
+         & & 3 & 4 & 5  \\ \hline
+         & Seq2Seq & 0.04& 0.12 & 0.98 \\
+         Simple Relabeling & Seq2Seq-Attn & {\bf 0} & {\bf 0} & 0.36 \\
+         & DRNN & {\bf 0} & {\bf 0} & 1.076 \\ 
+         & Tree2Tree & {\bf 0} & {\bf 0} & {\bf 0} \\ \hline
+         & Seq2Seq & 0.55 & 1.40 & 3.40 \\
+         Complex Relabeling & Seq2Seq-Attn & 0.27 & 1.05 & 2.32 \\
+          & DRNN & 2.89 & 4.56 & 6.646 \\  & Tree2Tree & {\bf 0.17} & {\bf 0.41} & {\bf 0.96} \\\hline
+         
+         
+    \end{tabular}
+    \caption{Tree edit distance for the tree tasks of tree copying (Copy),  node relabeling (Relabeling). The models are sequence-to-sequence
+    %~\citep{sutskever2014sequence}
+    (Seq2Seq), sequence-to-sequence with attention
+    %~\citep{bahdanau2014neural} 
+    (Seq2Seq-Attn) and our DRNN Seq2Tree transducer method.}
+    \label{tab:t2tresults}
+\end{table*}
+\paragraph{Discussion}
+The Seq2Seq model does well on both copy and node relabeling operations. The DRNN model has an average of 0 Tree edit distance for the copy operation but higher values of TED for the node relabel operation.
+The DRNN network takes much longer that Seq2Seq network to train. This is because the task is much simpler for a Seq2Seq network. It essentially turns into a copy operation for all labels except for the relabeled ones in the tree relabeling operation. On the other hand, for a Seq2Tree model, the nodes are not only relabeled but also reordered wrt the encoder input. To further experiment with this we tried different serialized inputs to the encoder. The training is much faster if the encoder input is a prefix string instead of an infix string. This is because the prefix string contains the root labels in the start and hence makes it easier for the Seq2Tree decoder. The training is even faster with a BFS input to the Seq2Tree encoder. This is because now the encoder sees the tree in the exact order in which decoder has to decode.
+
+\paragraph{Future Work}
+The DRNN model can be further experimented with other tree operations such as node deletions and re-orderings. This can be further combined with a Tree2Seq model to compare if Seq2Tree + Tree2Tree +  Tree2Seq result in better performance than Seq2Seq model.
+
+
+
+
+\bibliography{tree_learning}
+\bibliographystyle{acl_natbib}
+
+
+
+\end{document}

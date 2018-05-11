@@ -1,0 +1,475 @@
+@TECHREPORT{Graehl2004-kb,
+  title       = "Training tree transducers",
+  author      = "Graehl, Jonathan and Knight, Kevin",
+  institution = "DTIC Document",
+  year        =  2004
+}
+
+@ARTICLE{Kiperwasser2016-aw,
+  title         = "{Easy-First} Dependency Parsing with Hierarchical Tree
+                   {LSTMs}",
+  author        = "Kiperwasser, Eliyahu and Goldberg, Yoav",
+  abstract      = "We suggest a compositional vector representation of parse
+                   trees that relies on a recursive combination of
+                   recurrent-neural network encoders. To demonstrate its
+                   effectiveness, we use the representation as the backbone of
+                   a greedy, bottom-up dependency parser, achieving
+                   state-of-the-art accuracies for English and Chinese, without
+                   relying on external word embeddings. The parser's
+                   implementation is available for download at the first
+                   author's webpage.",
+  month         =  "1~" # mar,
+  year          =  2016,
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CL",
+  eprint        = "1603.00375"
+}
+
+@ARTICLE{Dong2016-qq,
+  title         = "Language to Logical Form with Neural Attention",
+  author        = "Dong, Li and Lapata, Mirella",
+  abstract      = "Semantic parsing aims at mapping natural language to machine
+                   interpretable meaning representations. Traditional
+                   approaches rely on high-quality lexicons, manually-built
+                   templates, and linguistic features which are either domain-
+                   or representation-specific. In this paper we present a
+                   general method based on an attention-enhanced
+                   encoder-decoder model. We encode input utterances into
+                   vector representations, and generate their logical forms by
+                   conditioning the output sequences or trees on the encoding
+                   vectors. Experimental results on four datasets show that our
+                   approach performs competitively without using
+                   hand-engineered features and is easy to adapt across domains
+                   and meaning representations.",
+  month         =  "6~" # jan,
+  year          =  2016,
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CL",
+  eprint        = "1601.01280"
+}
+
+@article{kingma2014adam,
+  title={Adam: A method for stochastic optimization},
+  author={Kingma, Diederik and Ba, Jimmy},
+  journal={arXiv preprint arXiv:1412.6980},
+  year={2014}
+}
+
+@article{chen2017improved,
+  title={Improved Neural Machine Translation with a Syntax-Aware Encoder and Decoder},
+  author={Chen, Huadong and Huang, Shujian and Chiang, David and Chen, Jiajun},
+  journal={arXiv preprint arXiv:1707.05436},
+  year={2017}
+}
+
+@ARTICLE{Zhang2015-bg,
+  title         = "Top-down Tree Long {Short-Term} Memory Networks",
+  author        = "Zhang, Xingxing and Lu, Liang and Lapata, Mirella",
+  abstract      = "Long Short-Term Memory (LSTM) networks, a type of recurrent
+                   neural network with a more complex computational unit, have
+                   been successfully applied to a variety of sequence modeling
+                   tasks. In this paper we develop Tree Long Short-Term Memory
+                   (TreeLSTM), a neural network model based on LSTM, which is
+                   designed to predict a tree rather than a linear sequence.
+                   TreeLSTM defines the probability of a sentence by estimating
+                   the generation probability of its dependency tree. At each
+                   time step, a node is generated based on the representation
+                   of the generated sub-tree. We further enhance the modeling
+                   power of TreeLSTM by explicitly representing the
+                   correlations between left and right dependents. Application
+                   of our model to the MSR sentence completion challenge
+                   achieves results beyond the current state of the art. We
+                   also report results on dependency parsing reranking
+                   achieving competitive performance.",
+  month         =  "31~" # oct,
+  year          =  2015,
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CL",
+  eprint        = "1511.00060"
+}
+
+@inproceedings{bowman2015tree,
+  title={Tree-structured composition in neural networks without tree-structured architectures},
+  author={Bowman, Samuel R and Manning, Christopher D and Potts, Christopher},
+  booktitle={Proceedings of the 2015th International Conference on Cognitive Computation: Integrating Neural and Symbolic Approaches-Volume 1583},
+  pages={37--42},
+  year={2015},
+  organization={CEUR-WS. org}
+}
+
+@ARTICLE{Tai2015-im,
+  title         = "Improved Semantic Representations From {Tree-Structured}
+                   Long {Short-Term} Memory Networks",
+  author        = "Tai, Kai Sheng and Socher, Richard and Manning, Christopher
+                   D",
+  abstract      = "Because of their superior ability to preserve sequence
+                   information over time, Long Short-Term Memory (LSTM)
+                   networks, a type of recurrent neural network with a more
+                   complex computational unit, have obtained strong results on
+                   a variety of sequence modeling tasks. The only underlying
+                   LSTM structure that has been explored so far is a linear
+                   chain. However, natural language exhibits syntactic
+                   properties that would naturally combine words to phrases. We
+                   introduce the Tree-LSTM, a generalization of LSTMs to
+                   tree-structured network topologies. Tree-LSTMs outperform
+                   all existing systems and strong LSTM baselines on two tasks:
+                   predicting the semantic relatedness of two sentences
+                   (SemEval 2014, Task 1) and sentiment classification
+                   (Stanford Sentiment Treebank).",
+  month         =  "28~" # feb,
+  year          =  2015,
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CL",
+  eprint        = "1503.00075"
+}
+
+
+@INPROCEEDINGS{Socher2011-nx,
+  title     = "Parsing natural scenes and natural language with recursive
+               neural networks",
+  booktitle = "Proceedings of the 28th international conference on machine
+               learning ({ICML-11})",
+  author    = "Socher, Richard and Lin, Cliff C and Manning, Chris and Ng,
+               Andrew Y",
+  pages     = "129--136",
+  year      =  2011
+}
+
+@inproceedings{alvarez2017tree,
+  title={Tree-structured decoding with doubly recurrent neural networks},
+  author={Alvarez-Melis, David and Jaakkola, Tommi S},
+  booktitle={International Conference on Learning Representations},
+  year={2017}
+}
+
+@ARTICLE{Brychcin2016-pq,
+  title         = "Latent Tree Language Model",
+  author        = "Brychcin, Tomas",
+  abstract      = "In this paper we introduce Latent Tree Language Model
+                   (LTLM), a novel approach to language modeling that encodes
+                   syntax and semantics of a given sentence as a tree of word
+                   roles. The learning phase iteratively updates the trees by
+                   moving nodes according to Gibbs sampling. We introduce two
+                   algorithms to infer a tree for a given sentence. The first
+                   one is based on Gibbs sampling. It is fast, but does not
+                   guarantee to find the most probable tree. The second one is
+                   based on dynamic programming. It is slower, but guarantees
+                   to find the most probable tree. We provide comparison of
+                   both algorithms. We combine LTLM with 4-gram Modified
+                   Kneser-Ney language model via linear interpolation. Our
+                   experiments with English and Czech corpora show significant
+                   perplexity reductions (up to 46\% for English and 49\% for
+                   Czech) compared with standalone 4-gram Modified Kneser-Ney
+                   language model.",
+  month         =  "24~" # jul,
+  year          =  2016,
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CL",
+  eprint        = "1607.07057"
+}
+
+@ARTICLE{Smith2007-tk,
+  title    = "Weighted and Probabilistic {Context-Free} Grammars Are Equally
+              Expressive",
+  author   = "Smith, Noah A and Johnson, Mark",
+  abstract = "This article studies the relationship between weighted
+              context-free grammars (WCFGs), where each production is
+              associated with a positive real-valued weight, and probabilistic
+              context-free grammars (PCFGs), where the weights of the
+              productions associated with a nonterminal are constrained to sum
+              to one. Because the class of WCFGs properly includes the PCFGs,
+              one might expect that WCFGs can describe distributions that PCFGs
+              cannot. However, Z. Chi (1999, Computational Linguistics,
+              25(1):131--160) and S. P. Abney, D. A. McAllester, and P. Pereira
+              (1999, In Proceedings of the 37th Annual Meeting of the
+              Association for Computational Linguistics, pages 542--549,
+              College Park, MD) proved that every WCFG distribution is
+              equivalent to some PCFG distribution. We extend their results to
+              conditional distributions, and show that every WCFG conditional
+              distribution of parses given strings is also the conditional
+              distribution defined by some PCFG, even when the WCFG's partition
+              function diverges. This shows that any parsing or labeling
+              accuracy improvement from conditional estimation of WCFGs or
+              conditional random fields (CRFs) over joint estimation of PCFGs
+              or hidden Markov models (HMMs) is due to the estimation procedure
+              rather than the change in model class, because PCFGs and HMMs are
+              exactly as expressive as WCFGs and chain-structured CRFs,
+              respectively.",
+  journal  = "Comput. Linguist.",
+  volume   =  33,
+  number   =  4,
+  pages    = "477--491",
+  year     =  2007
+}
+
+@inproceedings{sutskever2014sequence,
+  title={Sequence to sequence learning with neural networks},
+  author={Sutskever, Ilya and Vinyals, Oriol and Le, Quoc V},
+  booktitle={Advances in neural information processing systems},
+  pages={3104--3112},
+  year={2014}
+}
+
+@article{gers2001lstm,
+  title={LSTM recurrent networks learn simple context-free and context-sensitive languages},
+  author={Gers, Felix A and Schmidhuber, E},
+  journal={IEEE Transactions on Neural Networks},
+  volume={12},
+  number={6},
+  pages={1333--1340},
+  year={2001},
+  publisher={IEEE}
+}
+
+@article{siegelmann1995computational,
+  title={On the computational power of neural nets},
+  author={Siegelmann, Hava T and Sontag, Eduardo D},
+  journal={Journal of computer and system sciences},
+  volume={50},
+  number={1},
+  pages={132--150},
+  year={1995},
+  publisher={Elsevier}
+}
+
+@article{bahdanau2014neural,
+  title={Neural machine translation by jointly learning to align and translate},
+  author={Bahdanau, Dzmitry and Cho, Kyunghyun and Bengio, Yoshua},
+  journal={arXiv preprint arXiv:1409.0473},
+  year={2014}
+}
+
+@article{luong2015effective,
+  title={Effective approaches to attention-based neural machine translation},
+  author={Luong, Minh-Thang and Pham, Hieu and Manning, Christopher D},
+  journal={arXiv preprint arXiv:1508.04025},
+  year={2015}
+}
+
+@inproceedings{vinyals2015show,
+  title={Show and tell: A neural image caption generator},
+  author={Vinyals, Oriol and Toshev, Alexander and Bengio, Samy and Erhan, Dumitru},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={3156--3164},
+  year={2015}
+}
+
+@article{rush2015neural,
+  title={A neural attention model for abstractive sentence summarization},
+  author={Rush, Alexander M and Chopra, Sumit and Weston, Jason},
+  journal={arXiv preprint arXiv:1509.00685},
+  year={2015}
+}
+
+@article{vinyals2015neural,
+  title={A neural conversational model},
+  author={Vinyals, Oriol and Le, Quoc},
+  journal={arXiv preprint arXiv:1506.05869},
+  year={2015}
+}
+
+@inproceedings{sukhbaatar2015end,
+  title={End-to-end memory networks},
+  author={Sukhbaatar, Sainbayar and Weston, Jason and Fergus, Rob and others},
+  booktitle={Advances in neural information processing systems},
+  pages={2440--2448},
+  year={2015}
+}
+
+@article{lin2016critical,
+  title={Critical Behavior from Deep Dynamics: A Hidden Dimension in Natural Language},
+  author={Lin, Henry W and Tegmark, Max},
+  journal={arXiv preprint arXiv:1606.06737},
+  year={2016}
+}
+
+@article{munkhdalai2016neural,
+  title={Neural Tree Indexers for Text Understanding},
+  author={Munkhdalai, Tsendsuren and Yu, Hong},
+  journal={arXiv preprint arXiv:1607.04492},
+  year={2016}
+}
+
+@inproceedings{vinyals2015grammar,
+  title={Grammar as a foreign language},
+  author={Vinyals, Oriol and Kaiser, {\L}ukasz and Koo, Terry and Petrov, Slav and Sutskever, Ilya and Hinton, Geoffrey},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={2773--2781},
+  year={2015}
+}
+
+@article{eriguchi2016tree,
+  title={Tree-to-sequence attentional neural machine translation},
+  author={Eriguchi, Akiko and Hashimoto, Kazuma and Tsuruoka, Yoshimasa},
+  journal={arXiv preprint arXiv:1603.06075},
+  year={2016}
+}
+
+@inproceedings{eriguchi2016character,
+  title={Character-based Decoding in Tree-to-Sequence Attention-based Neural Machine Translation},
+  author={Eriguchi, Akiko and Hashimoto, Kazuma and Tsuruoka, Yoshimasa},
+  booktitle={Proceedings of the 3rd Workshop on Asian Translation (WAT2016)},
+  pages={175--183},
+  year={2016}
+}
+
+@article{aharoni2017towards,
+  title={Towards string-to-tree neural machine translation},
+  author={Aharoni, Roee and Goldberg, Yoav},
+  journal={arXiv preprint arXiv:1704.04743},
+  year={2017}
+}
+
+@article{dyer2016recurrent,
+  title={Recurrent neural network grammars},
+  author={Dyer, Chris and Kuncoro, Adhiguna and Ballesteros, Miguel and Smith, Noah A},
+  journal={arXiv preprint arXiv:1602.07776},
+  year={2016}
+}
+
+@article{dong2016language,
+  title={Language to logical form with neural attention},
+  author={Dong, Li and Lapata, Mirella},
+  journal={arXiv preprint arXiv:1601.01280},
+  year={2016}
+}
+
+@inproceedings{grefenstette2015learning,
+  title={Learning to transduce with unbounded memory},
+  author={Grefenstette, Edward and Hermann, Karl Moritz and Suleyman, Mustafa and Blunsom, Phil},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={1828--1836},
+  year={2015}
+}
+
+@article{linzen2016assessing,
+  title={Assessing the ability of LSTMs to learn syntax-sensitive dependencies},
+  author={Linzen, Tal and Dupoux, Emmanuel and Goldberg, Yoav},
+  journal={arXiv preprint arXiv:1611.01368},
+  year={2016}
+}
+
+%%%%%%%%%%%%% Fold - Dynamic batching  
+@article{looks2017deep,
+  title={Deep learning with dynamic computation graphs},
+  author={Looks, Moshe and Herreshoff, Marcello and Hutchins, DeLesley and Norvig, Peter},
+  journal={arXiv preprint arXiv:1702.02181},
+  year={2017}
+}
+
+
+%%%%%%%% Tree edit distance
+@article{bille2005survey,
+  title={A survey on tree edit distance and related problems},
+  author={Bille, Philip},
+  journal={Theoretical computer science},
+  volume={337},
+  number={1},
+  pages={217--239},
+  year={2005},
+  publisher={Elsevier}
+}
+
+@article{tai1979tree,
+  title={The tree-to-tree correction problem},
+  author={Tai, Kuo-Chung},
+  journal={Journal of the ACM (JACM)},
+  volume={26},
+  number={3},
+  pages={422--433},
+  year={1979},
+  publisher={ACM}
+}
+
+%%%%%%% Tree Transducers
+@article{engelfriet1975bottom,
+  title={Bottom-up and top-down tree transformations—a comparison},
+  author={Engelfriet, Joost},
+  journal={Mathematical systems theory},
+  volume={9},
+  number={2},
+  pages={198--231},
+  year={1975},
+  publisher={Springer}
+}
+
+@techreport{graehl2004training,
+  title={Training tree transducers},
+  author={Graehl, Jonathan and Knight, Kevin},
+  year={2004},
+  institution={DTIC Document}
+}
+
+@article{alur2012streaming,
+  title={Streaming tree transducers},
+  author={Alur, Rajeev and D’Antoni, Loris},
+  journal={Automata, Languages, and Programming},
+  pages={42--53},
+  year={2012},
+  publisher={Springer}
+}
+
+@article{comon2007tree,
+  title={Tree automata techniques and applications},
+  author={Comon, Hubert and Dauchet, Max and Gilleron, R{\'e}mi and L{\"o}ding, Christof and Jacquemard, Florent and Lugiez, Denis and Tison, Sophie and Tommasi, Marc},
+  year={2007}
+}
+
+%%%%%%% Tree transducers SMT
+@article{razmara2011application,
+  title={Application of tree transducers in statistical machine translation},
+  author={Razmara, Majid},
+  journal={Depth report, Simon Fraser University, British Columbia, Canada.(Cited on pages 77, 88, 92 and 168.)},
+  year={2011}
+}
+
+@phdthesis{cowan2008tree,
+  title={A tree-to-tree model for statistical machine translation},
+  author={Cowan, Brooke Alissa},
+  year={2008},
+  school={Massachusetts Institute of Technology}
+}
+
+@inproceedings{wang2007chinese,
+  title={Chinese Syntactic Reordering for Statistical Machine Translation.},
+  author={Wang, Chao and Collins, Michael and Koehn, Philipp},
+  booktitle={EMNLP-CoNLL},
+  pages={737--745},
+  year={2007}
+}
+
+@article{frasconi1998general,
+  title={A general framework for adaptive processing of data structures},
+  author={Frasconi, Paolo and Gori, Marco and Sperduti, Alessandro},
+  journal={IEEE transactions on Neural Networks},
+  volume={9},
+  number={5},
+  pages={768--786},
+  year={1998},
+  publisher={IEEE}
+}
+
+@inproceedings{gorn1965explicit,
+  title={Explicit definitions and linguistic dominoes},
+  author={Gorn, Saul},
+  booktitle={Systems and Computer Science, Proceedings of the Conference held at Univ. of Western Ontario},
+  pages={77--115},
+  year={1965}
+}
+
+@article{joshi1975tree,
+  title={Tree adjunct grammars},
+  author={Joshi, Aravind K and Levy, Leon S and Takahashi, Masako},
+  journal={Journal of computer and system sciences},
+  volume={10},
+  number={1},
+  pages={136--163},
+  year={1975},
+  publisher={Elsevier}
+}
+
+@article{zhou2018tree,
+  title={Tree-Structured Neural Machine for Linguistics-Aware Sentence Generation},
+  author={Zhou, Ganbin and Luo, Ping and Cao, Rongyu and Xiao, Yijun and Lin, Fen and Chen, Bo and He, Qing},
+  year={2018}
+}
