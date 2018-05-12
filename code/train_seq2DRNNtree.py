@@ -17,39 +17,12 @@ import random
 from queue import *
 
 from seq2tree import *
+from tree2seq.util import *
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pylab as plt
 from matplotlib.pyplot import imshow
-#get_ipython().run_line_magic('matplotlib', 'inline')
-
-
-# In[4]:
-
-
-import time
-import math
-
-print("hi")
-
-
-def asMinutes(s):
-    m = math.floor(s / 60)
-    s -= m * 60
-    return '%dm %ds' % (m, s)
-
-
-def timeSince(since, percent):
-    now = time.time()
-    s = now - since
-    es = s / (percent)
-    rs = es - s
-    return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
-
-
-# In[5]:
-
 
 def generate_training_data(n_iters,train_filename,target_filename):
     data_loader = Tree2TreeDataLoader(train_filename,target_filename)
@@ -165,6 +138,9 @@ class DecoderDRNN(nn.Module):
 
 
 def train(input_variable, target, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion_label,criterion_topology):
+    encoder_optimizer.zero_grad()
+    decoder_optimizer.zero_grad()
+
     encoder_hidden = encoder.initCells()
     encoder_c = encoder.initCells()
 
@@ -237,18 +213,7 @@ def train(input_variable, target, encoder, decoder, encoder_optimizer, decoder_o
             target_label = Variable(torch.LongTensor([int(target_node.key)]))
             
         loss_label = criterion_label(output,target_label)
-        
-        encoder_optimizer.zero_grad()
-        decoder_optimizer.zero_grad()
-        
-        #loss_label.backward(retain_graph = True) 
-        #nn.utils.clip_grad_norm(decoder.parameters(), 5)
-        #nn.utils.clip_grad_norm(encoder.parameters(), 5)
-        
-        #loss += loss_label.data[0]
         loss += loss_label
-        #encoder_optimizer.step()
-        #decoder_optimizer.step()
 
         node.key = Variable(torch.LongTensor([int(target_node.key)]))
         node.hiddenA = decoder_hiddenA
@@ -279,47 +244,17 @@ def train(input_variable, target, encoder, decoder, encoder_optimizer, decoder_o
                 target_topo = Variable(torch.FloatTensor([1.0]).view(1,1)).cuda(gpu_no)
             else:
                 target_topo = Variable(torch.FloatTensor([1.0]).view(1,1))
-            
-            loss_topo = criterion_topology(childPred,target_topo)
-            
-            #encoder_optimizer.zero_grad()
-            #decoder_optimizer.zero_grad()
-            #loss_topo.backward(retain_graph = True)
-            #nn.utils.clip_grad_norm(decoder.parameters(), 5)
-            #nn.utils.clip_grad_norm(encoder.parameters(), 5)
-            
-            #loss += loss_topo.data[0]
-            loss += loss_topo
-            
-            #encoder_optimizer.step()
-            #decoder_optimizer.step()
-        
-            
-                    
-        if use_cuda:
-            target_topo = Variable(torch.FloatTensor([0.0]).view(1,1)).cuda(gpu_no)
         else:
-            target_topo = Variable(torch.FloatTensor([0.0]).view(1,1))
+            if use_cuda:
+                target_topo = Variable(torch.FloatTensor([0.0]).view(1,1)).cuda(gpu_no)
+            else:
+                target_topo = Variable(torch.FloatTensor([0.0]).view(1,1))
         
-        if(target_node.leftChild is None and torch.gt(childPred,0.5).data[0][0]):
-            loss_topo = criterion_topology(childPred,target_topo)
-            
-            #encoder_optimizer.zero_grad()
-            #decoder_optimizer.zero_grad()
-            
-            #loss_topo.backward(retain_graph = True)
-            #nn.utils.clip_grad_norm(decoder.parameters(), 5)
-            #nn.utils.clip_grad_norm(encoder.parameters(), 5)
-            
-            #loss += loss_topo.data[0]
-            
-            loss += loss_topo
-            #encoder_optimizer.step()
-            #decoder_optimizer.step() 
-     
-    encoder_optimizer.zero_grad()
-    decoder_optimizer.zero_grad()
-    loss.backward(retain_graph = True)
+        loss_topo = criterion_topology(childPred,target_topo)
+        loss += loss_topo
+
+    loss.backward()
+    
     nn.utils.clip_grad_norm(decoder.parameters(), 5)
     nn.utils.clip_grad_norm(encoder.parameters(), 5)
     encoder_optimizer.step()
