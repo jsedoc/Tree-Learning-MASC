@@ -1,21 +1,9 @@
 
 # coding: utf-8
-
-# In[ ]:
-
-
-#get_ipython().system('pip3 install tqdm')
-#get_ipython().run_line_magic('run', "'tree2seq_dataloader.ipynb'")
-#get_ipython().run_line_magic('run', "'childsumtree.ipynb'")
-#get_ipython().run_line_magic('run', "'decoderrnn.ipynb'")
+# This file is for training the Tai et al. Child Sum Tree LSTM encoder to a
+# sequence decoder. 
 
 from tree2seq import *
-#from tree2seq_dataloader import *
-#from childsumtree import *
-#from decoderrnn import *
-#from util import *
-# In[ ]:
-
 
 from torch import optim
 
@@ -23,6 +11,10 @@ from torch import optim
 def train(input_variable, target, 
           encoder, decoder, encoder_optimizer, decoder_optimizer, 
           criterion):
+    """ train function is the main loop. Right not this is batch size one
+        input variable is expected to be a tuple of a tree pointer into
+        the tree matrix. 
+    """
 
     encoder_optimizer.zero_grad()
     decoder_optimizer.zero_grad()
@@ -33,7 +25,10 @@ def train(input_variable, target,
     predicted = []
     
     if 1: #tree_encoder:
-        encoder_hidden = encoder(input_variable[0], Variable(input_variable[1]))
+        tree_matrix = Variable(input_variable[1])
+        tree_matrix = tree_matrix.cuda() if use_cuda else tree_matrix
+
+        encoder_hidden = encoder(input_variable[0], tree_matrix)
     else:
         # TBD ...
         encoder_hidden = encoder.initHidden()
@@ -54,6 +49,7 @@ def train(input_variable, target,
         decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
         
         target_variable = Variable(torch.LongTensor([[target[di]]]))
+        target_variable = target_variable.cuda() if use_cuda else target_variable
         loss += criterion(decoder_output, target_variable[0][0])
         topv, topi = decoder_output.data.topk(1)
         ni = topi[0][0]
@@ -71,13 +67,11 @@ def train(input_variable, target,
     return (loss.data[0] / target_length, predicted)
 
 
-# In[ ]:
-
 
 dataset = Dataset()
 dataset.create_vocab('data/train.orig')
 one_hot_dict = dataset.create_one_hot()
-    #print(one_hot_dict['('])
+
 
 trees = dataset.read_trees('data/train.orig')
 seqs = dataset.read_seqs('data/train.orig')
@@ -94,6 +88,10 @@ output_size = input_size
 
 encoder = ChildSumTreeLSTM(input_size, hidden_size)
 decoder = DecoderRNN(hidden_size, output_size)
+
+if use_cuda:
+    decoder.cuda()
+    encoder.cuda()
 
 learning_rate = 0.01
 encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)

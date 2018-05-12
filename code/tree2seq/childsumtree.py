@@ -1,15 +1,4 @@
-
 # coding: utf-8
-
-# In[ ]:
-
-
-#get_ipython().run_line_magic('run', "'tree2seq_dataloader.ipynb'")
-
-
-# In[ ]:
-
-# from tree2seq_dataloader import *
 
 import torch
 import torch.nn as nn
@@ -64,7 +53,6 @@ class ChildSumTreeLSTM(nn.Module):
         return state
 
 
-# In[ ]:
 
 
 if __name__ == '__main__':
