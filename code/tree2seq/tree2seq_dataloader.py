@@ -1,10 +1,5 @@
-
 # coding: utf-8
 
-# In[1]:
-
-
-# coding: utf-8
 
 # NOTE: for sorting by value
 import operator, copy
@@ -13,10 +8,13 @@ from tqdm import tqdm
 
 import torch
 import torch.utils.data as data
-use_cuda = torch.cuda.is_available()
 
 from nltk import Tree
 
+if 'use:cuda' not in globals():
+    use_cuda = torch.cuda.is_available()
+
+DEBUG = False
 
 class Dataset(data.Dataset):
 
@@ -47,7 +45,7 @@ class Dataset(data.Dataset):
                         vocab[token] = 1
                     else:
                         vocab[token] += 1
-        print(len(vocab.keys()))
+        if DEBUG: print(len(vocab.keys()))
         
         index = 0
         token_dict = {}
@@ -103,53 +101,51 @@ class Dataset(data.Dataset):
         return (idx, tree_matrix) 
 
 
+    def make_tree_seq(self, src_tree):
+        tree = copy.deepcopy(src_tree)
+        node_values = []
+        (idx, node_values) = self.create_tree_seq(tree, 0, node_values)
+        return (tree, torch.LongTensor(
+            [self.token_dict[x] for x in node_values]))
+
+    def create_tree_seq(self, tree, idx, node_value_list):
+        if isinstance(tree, Tree):
+            for i, child in enumerate(tree):
+                (idx, node_value_list) = self.create_tree_seq(
+                    child, idx, node_value_list)
+                if not isinstance(child, Tree):
+                    tree[i] = idx - 1
+            node_value_list.append(tree.label())
+            tree.set_label(idx)
+            idx+= 1
+        else:
+            node_value_list.append(tree)
+            idx += 1
+
+        return (idx, node_value_list) 
+        
+
+
 # In[5]:
 
 
 if __name__ == '__main__':
     dataset = Dataset()
-    dataset.create_vocab('data/train.orig')
+    dataset.create_vocab('../data/train.orig')
     one_hot_dict = dataset.create_one_hot()
     #print(one_hot_dict['('])
 
-    trees = dataset.read_trees('data/train.orig')
-    seqs = dataset.read_seqs('data/train.orig')
+    trees = dataset.read_trees('../data/train.orig')
+    seqs = dataset.read_seqs('../data/train.orig')
 
-    #print(trees[1])
-    #print(seqs[1])
+    print(trees[1])
+    print(seqs[1])
 
-
-# In[9]:
-
-
-#tree_matrix = torch.zeros(len(tmp.treepositions()), dataset.vector_dim)
-#(idx, tree_matrix) = dataset.create_pointer_tree(tmp, 0, tree_matrix)
-#(idx, tree_matrix) = dataset.create_pointer_tree(tmp)
+    ptr_trees_2 = [dataset.make_tree_seq(tree) for tree in tqdm(trees)]
+    ptr_trees = [dataset.make_ptr_tree(tree, len(dataset.vocab.keys())) for tree in tqdm(trees)]
 
 
-# In[10]:
-
-
-#print(dataset.one_hot_dict.keys())
-#print(tmp)
-#print(tree_matrix[6])
-
-
-# In[11]:
-
-
-#ptr_trees = [dataset.make_ptr_tree(tree) for tree in tqdm(trees)]
-
-
-# In[12]:
-
-
-#len(ptr_trees)
-
-
-# In[13]:
-
-
-#print(ptr_trees[1][0])
-#print(trees[1])
+    print(ptr_trees[1][0], ptr_trees[1][1])
+    print(ptr_trees_2[1][0], ptr_trees_2[1][1])
+    print(trees[1])
 
