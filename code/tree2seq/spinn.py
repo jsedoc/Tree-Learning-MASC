@@ -5,6 +5,8 @@ from torch.autograd import Variable
 
 import itertools
 
+SHIFT =3
+REDUCE=2
 
 def tree_lstm(c1, c2, lstm_in):
     a, i, f1, f2, o = lstm_in.chunk(5, 1)
@@ -81,6 +83,7 @@ class Reduce(nn.Module):
         """
         left, right = bundle(left_in), bundle(right_in)
         tracking = bundle(tracking)
+        import pdb; pdb.set_trace()
         lstm_in = self.left(left[0])
         lstm_in += self.right(right[0])
         if hasattr(self, 'track'):
@@ -159,17 +162,18 @@ class SPINN(nn.Module):
                 tracker_states = itertools.repeat(None)
             lefts, rights, trackings = [], [], []
             batch = zip(trans.data, buffers, stacks, tracker_states)
+            import pdb; pdb.set_trace()
             for transition, buf, stack, tracking in batch:
-                if transition == 3:  # shift
+                if transition == SHIFT:  # shift
                     stack.append(buf.pop())
-                elif transition == 2:  # reduce
+                elif transition == REDUCE:  # reduce
                     rights.append(stack.pop())
                     lefts.append(stack.pop())
                     trackings.append(tracking)
             if rights:
                 reduced = iter(self.reduce(lefts, rights, trackings))
                 for transition, stack in zip(trans.data, stacks):
-                    if transition == 2:
+                    if transition == REDUCE:
                         stack.append(next(reduced))
         # if trans_loss is not 0:
         return bundle([stack.pop() for stack in stacks])[0]
@@ -198,7 +202,7 @@ if __name__ == '__main__':
 
     values = [dataset.token_dict[_] for _ in seqs[1].strip().replace('(','').replace(')','').split()]
     buf = torch.stack([torch.stack([one_hot_dict[_].view(-1) for _ in seqs[1].strip().replace('(','').replace(')','').split()])])
-    transitions = [3 if _ == ')' else 2 for _ in seqs[1].strip().replace('(','').split()]
+    transitions = [REDUCE if _ == ')' else SHIFT for _ in seqs[1].strip().replace('(','').split()]
 
     print(buf)
     print(transitions)
