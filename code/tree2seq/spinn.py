@@ -185,13 +185,22 @@ if __name__ == '__main__':
     from tree2seq_dataloader import *
     dataset = Dataset()
     dataset.create_vocab('../data/train.orig')
-    one_hot_dict = dataset.create_one_hot()
+    hidden_size = 128
+    one_hot_dict = dataset.create_one_hot(hidden_size)
 
     trees = dataset.read_trees('../data/train.orig')
     seqs = dataset.read_seqs('../data/train.orig')
     ptr_trees = [dataset.make_tree_seq(tree) for tree in tqdm(trees)]
 
     config = SPINNConfig()
+    config.d_hidden = hidden_size
     encoder = SPINN(config)
-    cst = tree_lstm(dataset.vector_dim, 64, 300)
-    print(cst.forward(ptr_trees[1][0], Var(ptr_trees[1][1])))
+
+    values = [dataset.token_dict[_] for _ in seqs[1].strip().replace('(','').replace(')','').split()]
+    buf = torch.stack([torch.stack([one_hot_dict[_].view(-1) for _ in seqs[1].strip().replace('(','').replace(')','').split()])])
+    transitions = [3 if _ == ')' else 2 for _ in seqs[1].strip().replace('(','').split()]
+
+    print(buf)
+    print(transitions)
+
+    encoder.forward(Variable(buf), Variable(torch.LongTensor(transitions).view(1,-1)))
