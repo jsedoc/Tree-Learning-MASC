@@ -1,0 +1,47 @@
+\begin{figure*}[tbh!]
+\centering
+\begin{tikzpicture}[->,>=stealth',level/.style={sibling distance = 5cm/#1,
+  level distance = 1.5cm}] 
+\node (input) [arn_x] {\ \ ( a + b ) $*$ c \ \ }
+    child{ node (h1) [arn_n] {$h^1$} 
+            child{ node (h2) [arn_n] {$h^2$}
+            %
+                child{ node [arn_n] {$h^3$}
+                	child{ node [arn_s] {} }
+                    child{ node [arn_x] {\\ $x^3 = a$ \ }
+            		}
+                    child{ node [arn_s] {} }
+            	}
+            %
+            	child{ node [arn_x] {\\ $x^2 = +$  \  }
+            	}  
+                child{ node [arn_n] {$h^4$}
+                	child{ node [arn_s] {} }
+                    child{ node [arn_x] {\\$ x^4 =b$ \ }
+            		}
+                	child{ node [arn_s] {} }
+            	}
+            }
+            child{ ( 0, -0.5)  node [arn_x] {\\ $x^{1} = *$ \ }
+            }  
+            child{ node (h5) [arn_r] {$h^5$}
+                child{ node [arn_s] {} }
+                child{ node [arn_x] {\\ $x^5 = c$ \ }
+            	}
+                child{ node [arn_s] {} }
+           	}
+    }
+%
+;
+\draw[red] (-2.5,-2.2) node{$H(\mathcal{LS}_5)$}
+  -- (-6.8,-6.5) node{}
+  -- ( 1.8,-6.5) node{}
+  -- cycle;
+\draw[red, dashed, thick, ->] (-2.5,-2.36) edge (h5);
+\draw[red, dashed, thick, ->] (h1) edge (h5);
+\node[text width=2cm] at (-1.2,0) {{\bf encode}}; 
+\end{tikzpicture}
+\caption{This is an explicit example of the neural tree transducer model (NTT)  binary tree for ( a + b ) * c. $x^p$ are the random variables, and $h^p$ are the hidden states. $p$ corresponds to the derivation number, so $x^2$ is the second generated random variable, who's realization is the symbol $+$. The set $\mathcal{LS}_5 = \{x^2,x^3, x^4\}$, and $\mathcal{P}_5 = \{x_1\}$ The hidden state $h^5$ is a function of the encoded left subtree $h^{\mathcal{LS}_5} = H(\mathcal{LS}_5)) \neq h^2$ and the parent hidden state, $h^{\mathcal{P}} = h^1$. The reader should note that the predicted $\hbox{Pr}(x^2 \mid x^1) =  g(x^2 = + \mid h^2)$, while $\hbox{Pr}(x^5 \mid x^1, x^2, x^3, x^4) = g(x^5 = c \mid h^2, h^{\mathcal{LS}_5})$, so the difference in the prediction of $x^2$ and $x^5$ is due to the dependence on the left sibling subtree. Finally, $h^1 = enc(S)$ where $S$ is the source tree to be transduced.}
+\label{fig:treeproduction}
+\end{figure*}
+

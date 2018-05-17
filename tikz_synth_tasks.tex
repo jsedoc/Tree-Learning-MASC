@@ -1,0 +1,133 @@
+\begin{figure}[thb!]
+\centering
+\resizebox{0.5\textwidth}{!}{%
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 3cm/#1,
+  level distance = 1.5cm}] 
+    \node (S) [arn_x]  at (-3, 16.5) {1}
+    child{ node (2) [arn_x] {2}
+        child{ node (3) [arn_x] {3}}
+        child{ node (4) [arn_x] {5}}
+    }
+    child{ node (5) [arn_x] {4}}
+;
+% 
+    \node (T) [arn_x] at (3, 16.5) {a}{
+        child{ node (b) [arn_x] {b}
+            child{ node (c) [arn_x] {c}}
+            child{ node (d) [arn_x] {e}}
+        }
+        child{ node (e) [arn_x] {d}}}
+    ;    
+\draw[->,thick,blue] (S) edge (T);   
+\draw[->] (3) edge (2);   
+\draw[->] (4) edge (2);   
+\draw[->] (2) edge (S);   
+\draw[->] (5) edge (S);
+%
+\draw[->] (T) edge (b);   
+\draw[->] (b) edge (c);   
+\draw[->] (b) edge (d);
+\draw[->, dotted] (c) edge (d);
+\draw[->] (T) edge (e);   
+\draw[->, dotted ] (b) edge (e);
+%
+%
+\node[scale=1.7] at (0,12.2) { (a) simple relabeling };
+%
+%
+    \node (RLS) [arn_x]  at (-3, 11) {1}
+    child{ node (RL2) [arn_x] {2}
+        child{ node (RL3) [arn_x] {3}}
+        child{ node (RL4) [arn_x] {{\bf 5}}}
+    }
+    child{ node (RL5) [arn_x] {{\bf 4}}}
+;
+% 
+    \node (RLT) [arn_x] at (3,11) {1}{
+        child{ node (RLb) [arn_x] {2}
+            child{ node (RLc) [arn_x] {3}}
+            child{ node (RLd) [arn_x] {{\bf 4}}}
+        }
+        child{ node (RLe) [arn_x] {{\bf 5}}}}
+    ;    
+\draw[->,thick,blue] (RLS) edge (RLT);   
+\draw[->] (RL3) edge (RL2);   
+\draw[->] (RL4) edge (RL2);   
+\draw[->] (RL2) edge (RLS);   
+\draw[->] (RL5) edge (RLS);
+%
+\draw[->] (RLT) edge (RLb);   
+\draw[->] (RLb) edge (RLc);   
+\draw[->] (RLb) edge (RLd);
+\draw[->, dotted] (RLc) edge (RLd);
+\draw[->] (RLT) edge (RLe);   
+\draw[->, dotted ] (RLb) edge (RLe);
+%
+%
+\node[scale=1.7] at (0,6.6) {(b) simple subtree reordering};
+%
+%
+    \node (ROS) [arn_x]  at (-3, 5.5) {1}
+    child{ node (RO2) [arn_x] {2}
+        child{ node (RO3) [arn_x] {3}}
+        child{ node (RO4) [arn_x] {5}}
+    }
+    child{ node (RO5) [arn_x] {4}}
+;
+% 
+    \node (ROT) [arn_x] at (3,5.5) {1}{
+        child{ node (ROe) [arn_x] {4}}
+        child{ node (ROb) [arn_x] {2}
+            child{ node (ROc) [arn_x] {3}}
+            child{ node (ROd) [arn_x] {5}}
+        }
+        }
+    ;    
+\draw[->,thick,blue] (ROS) edge (ROT);   
+\draw[->] (RO3) edge (RO2);   
+\draw[->] (RO4) edge (RO2);   
+\draw[->] (RO2) edge (ROS);   
+\draw[->] (RO5) edge (ROS);
+%
+\draw[->] (ROT) edge (ROb);   
+\draw[->] (ROb) edge (ROc);   
+\draw[->] (ROb) edge (ROd);
+\draw[->, dotted] (ROc) edge (ROd);
+\draw[->] (ROT) edge (ROe);   
+\draw[->, dotted ] (ROe) edge (ROb);
+%
+%
+\node[scale=1.7] at (0,1.2) {(c) complex subtree reordering};
+%
+%
+    \node (DS) [arn_x]  at (-3, 0) {1}
+    child{ node (D2) [arn_x] {2}
+        child{ node (D3) [arn_x] {3}}
+        child{ node (D4) [arn_x] {5}}
+    }
+    child{ node (D5) [arn_x] {4}}
+;
+% 
+    \node (DT) [arn_x] at (3,0) {1}{
+        child{ node (Db) [arn_x] {6}
+        }
+        child{ node (De) [arn_x] {4}}}
+    ;    
+\draw[->,thick,blue] (DS) edge (DT);   
+\draw[->] (D3) edge (D2);   
+\draw[->] (D4) edge (D2);   
+\draw[->] (D2) edge (DS);   
+\draw[->] (D5) edge (DS);
+%
+\draw[->] (DT) edge (Db);   
+\draw[->] (DT) edge (De);   
+\draw[->, dotted ] (Db) edge (De);
+
+\node[scale=1.7] at (0,-4.0) {(d) subtree deletion};
+
+
+\end{tikzpicture}
+}
+\caption{a) Simple relabeling example where $1 \rightarrow a$, $2 \rightarrow b$, and so on. b) subtree reordering where nodes labeled 4 and 5 swap. c) full reordering of subtree where left and right subtrees of the root node swap, and d) subtree deletion where the subtree of node 2 is replaced be the node labelled 6. The dotted arrows represent conditional dependence.} \label{fig:tree_simple_relabel}
+\end{figure}
+%\end{wrapfigure}

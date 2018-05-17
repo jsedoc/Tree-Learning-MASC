@@ -1,0 +1,16 @@
+\begin{figure}[tbh!]
+\centering
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 5cm/#1,
+  level distance = 1.5cm}] 
+\node [arn_x] {\ \ (a + b) $*$ c \ \ }
+    child{ node [arn_x] {*}
+        child{ node [arn_x] {+}
+            child{ node [arn_x] {a}}
+            child{ node [arn_x] {b}}
+        }
+        child{ node [arn_x] {c}}
+    }
+; 
+\end{tikzpicture}
+\caption{Example binary tree for ( a + b ) * c.} \label{fig:tree_motivation}
+\end{figure}

@@ -1,0 +1,371 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2018
+
+% ready for submission
+\usepackage{nips_2018}
+
+% to compile a preprint version, e.g., for submission to arXiv, add
+% add the [preprint] option:
+% \usepackage[preprint]{nips_2018}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2018}
+
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2018}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[draft]{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{natbib}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% TIKZ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows}
+%\usetikzlibrary{snakes}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{calc}
+
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+   1 with {\arrow[semithick]{open triangle 60}}},
+   double distance=1.4pt, shorten >= 5.5pt,
+   preaction = {decorate},
+   postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
+\tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]
+
+\tikzstyle{every picture}+=[remember picture]
+\tikzstyle{state}=[shape=circle,draw=blue!50,fill=blue!20, minimum size=1.3cm]
+\tikzstyle{unity}=[shape=circle,draw=blue!50, minimum size=1.3cm]
+\tikzstyle{observation}=[shape=rectangle,draw=orange!50,fill=orange!20]
+\tikzstyle{lightedge}=[<-,dotted]
+\tikzstyle{mainstate}=[state,thick]
+\tikzstyle{mainedge}=[<-,thick]
+\tikzstyle{revmainedge}=[->,thick]
+\tikzset{onslide/.code args={<#1>#2}{%                                                                  
+  \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
+}}
+
+\tikzset{
+  treenode/.style = {align=center, inner sep=0pt, text centered,
+    font=\sffamily},
+  arn_n/.style = {treenode, circle, font=\sffamily\bfseries, draw=black,
+    text width=2.1em},
+  arn_r/.style = {treenode, circle, black, draw=black, fill=red,
+    text width=2.1em, very thick},% arbre rouge noir, noeud rouge
+  arn_x/.style = {treenode, rectangle, draw=black,
+    minimum width=1.5em, minimum height=2.5em},% arbre rouge noir, nil
+  arn_s/.style = {treenode, rectangle, draw=black,
+    minimum width=0.5em, minimum height=0.5em}
+}
+
+\tikzstyle{highlight}=[red,ultra thick]
+%%%%%%%%%%%%%%%%%%%%%%%%%%       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{color}
+\newcommand{\lhu}[1]{\textcolor{red}{\bf \small [LHU-- #1]}}
+\newcommand{\jcs}[1]{\noindent{\textcolor{green}{\{{\bf jcs:} {\em #1}\}}}}
+
+
+\title{Neural Tree Transducers for Tree to Tree Learning}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{
+Joao Sedoc}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+
+\begin{abstract}
+We introduce a novel approach to tree-to-tree learning, the neural tree transducer (NTT), a top-down depth first context-sensitive tree decoder, which is paired with recursive neural encoders. Our method works purely on tree-to-tree manipulations rather than sequence-to-tree or tree-to-sequence and is able to encode and decode multiple depth trees. We compare our method to sequence-to-sequence models applied to serializations of the trees and show that our method outperforms previous methods for tree-to-tree transduction. 
+\end{abstract}
+
+\section{Introduction}
+Our research focuses on the ability of neural methods to learn how to transduce (i.e. translate) one tree structure into another by a sequence of tree operations.
+The sequence-to-sequence (Seq2Seq) model has led to a revolution in generative methods for neural encoding and decoding \citep{sutskever2014sequence}. Seq2Seq allowed for the encoding or compression of the initial input stream and a generative transformation sequence. From the point of view of tree transduction, Seq2Seq implicitly incorporates tree structure, unlike other methods which explicitly operate on trees.  
+Intuitively, Seq2Seq can be thought of as equivalent to Seq2Tree, followed by Tree2Tree, and finally Tree2Seq. We show that while mathematically equivalent, for neural networks the structure can radically change what the model is able to learn.
+
+The sequence-to-sequence (Seq2Seq) model has led to a revolution in generative models for neural encoding and decoding \citep{sutskever2014sequence}. Seq2Seq allowed for the encoding or compression of the initial input stream and a generative transformation sequence. 
+%However, similar to phrase-based machine translation versus syntactic translation for natural language processing (NLP), 
+From another point of view, Seq2Seq implicitly incorporate tree structure, whereas our method explicitly operates on trees. This is specifically important for tree transduction. We present a tree-to-tree (Tree2Tree) model for neural tree transduction which ``translates'' one tree into another. 
+Intuitively, Seq2Seq can be thought of as equivalent to Seq2Tree, followed by Tree2Tree, and finally Tree2Seq. While these can be mathematically equivalent, for neural networks the structure can radically change what the model is able to learn.
+
+Unlike sequence-to-sequence models, tree-to-tree allows for a formalism useful for assessing the learning capabilities of the neural network. In particular, this problem can be framed as tree transduction where the neural network is learning transduction rules and their associated probabilities. Given the casing of this problem, we exampling the learning capabilities of Tree2Tree neural model {\bf without} attentional mechanisms. We show that Tree2Tree has a superior ability to learn tree transduction rules as opposed to the sequence-to-sequence models, even including attentional mechanisms~\citep{bahdanau2014neural}.
+
+Tree2Tree operates on trees as tree transducer. Tree transduction and tree rule extraction have been extensively studied outside of deep learning; for a review see \citet{comon2007tree}. Unlike classical transduction methods, neural Tree2Tree models have no explicit rule extraction.  
+%\jcs{is this the right phrasing?} 
+Tree2Tree extends neural implementation of tree structured transduction from the seminal work of \citet{frasconi1998general}. We effectively learn the transduction rules instead of learning the weights on hand coded transduction rules. 
+Tree transduction is an important problem for many tasks including neural syntactic machine translation \citep{cowan2008tree,razmara2011application,wang2007chinese}, mapping sentences to functional programs \citep{alvarez2017tree}, and specialized program translation \citep{alur2012streaming}.
+
+Within natural language processing, Seq2Seq has been used for many applications including machine translation \citep{sutskever2014sequence,bahdanau2014neural,vinyals2015show}, caption generation \citep{vinyals2015show}, abstractive summarization \citep{rush2015neural}, dialog generation \citep{vinyals2015neural}. One of the main advantages of Seq2Seq other existing generative models like hidden Markov models is its ability to ``remember'' longer term information using long-short term memory (LSTM), or more recently gated recurrent units (GRUs). These nonlinear recurrent models have an explicit memory retention which allows for the information in the encoded sentence to persist over the generated sequence \citep{lin2016critical}, furthermore, LSTM has been shown to capture context sensitive languages~\citep{gers2001lstm} and RNNs in general are Turing complete~\citep{siegelmann1995computational}. Furthermore, Seq2Seq has been shown to learn grammar~\citep{vinyals2015grammar} as well as tree structure~\citep{bowman2015tree}, and with {\it explicit supervision} syntax dependencies~\citep{linzen2016assessing}. Nonetheless, the original Seq2Seq model from \citet{sutskever2014sequence} reversed the input sequence in order to increase performance, showing that memory retention of distant information remained a problem. Attentional mechanisms~\citep{bahdanau2014neural,luong2015effective} were introduced to assist the decoder to reference distant entries in the input sequence. There has been further use of memory storage additions \citep{sukhbaatar2015end} to retain more relevant history. However, recent work of \citet{bow}
+
+Both sequence-to-tree~\citep{aharoni2017towards,Zhang2015-bg,Dong2016-qq} and tree-to-sequence~\citep{eriguchi2016character} have been explored. However, tree-to-tree encoding and decoding has been largely ignored. This, in spite of the fact that tree transduction and tree grammars have a long tradition  \citep{engelfriet1975bottom,graehl2004training,cowan2008tree}. Syntax based (tree-to-tree) machine translation models produced state-of-the-art results for many years \citep{cowan2008tree,razmara2011application}. 
+
+Unlike other work that focuses on extending sequence-to-sequence to trees, our work frames the tree-to-tree problem in the context of tree transduction. We draw from a large body of previous work in this field and thus, explicitly examine this problem from the perspective of production rules and tree edit distance~\citep{tai1979tree}. 
+
+The major contribution of this paper is 1) to cast the tree-to-tree problem in the formal light of tree transduction, 2) to introduce a neural tree transducer containing a new decoder mechanism specialized to tree-to-tree decoding which we extend to include attentional mechanisms and 3) to show that this tree-to-tree model
+can be efficiently estimated using dynamic batching and achieves better performance than standard Seq2Seq models on a clean set of transduction tasks. 
+
+% same for figure
+\input{tikz_tree_production}
+
+\jcs{why is this here?  -- should be in the method section right?}
+An important assumption of the model is that left derivations depend only on their parents, whereas right derivations are sensitive to the left sibling subtree. Allowing the left derivations to be dependant on their right subtree would create a cyclical dependency. Therefore, we make the implicit assumption that the parent hidden state captures sufficient information. In contrast, a breadth first approach can be bidirectionally dependent; however, the independence assumption is made with the children at subsequent depths. 
+Although in this paper we focus on binary trees, we can generalize to N-ary trees. 
+\jcs{Furthermore, it should be noted that in the case of left only branching input and output trees NTT reduces to Seq2Seq.}
+
+
+\section{Related Work}
+There are three main related neural methods: Seq2Seq, Seq2Tree and Tree2Seq. As discussed below, Tree2Tree is a transduction problem with is often done implicitly by these methods by using serialized versions of trees. By focusing purely on the tree transduction problem, we obtain both higher accuracy due to better localization and insight into the models.
+Seq2Seq is a baseline as Seq2Seq can be decomposed into Seq2Tree, Tree2Tree, and Tree2Seq. Thus Seq2Seq models should in theory be able to capture tree transduction. 
+
+
+\subsection{Sequence-to-Sequence}
+The first neural sequence-to-tree  method treated grammar as a foreign language~\citep{vinyals2015grammar}. However, similar to our baseline, their tree output is a serialization of a tree rather than a tree structure. This is an important distinction from a true Seq2Tree in that the hidden state vector in the decoder must treat the serialization as a stack. In our results, one can see that which serialization one uses matters.
+Seq2Seq has a disadvantage in that the trees generated may not be well formed. We find this is actually a problem in practice, not just in theory. \citet{dyer2016recurrent} introduced the stack-based RNNG model, which uses a stack structure to create well formed trees. However, this model is still fundamentally a Seq2Seq approach with the stack function serving as a similar form of compression. 
+Similarly, \citet{grefenstette2015learning} show that the augmentation of Seq2Seq with memory was required for higher transduction accuracy.
+
+\subsection{Tree-to-Sequence}
+Tree-to-Sequence learning can be thought of as a tree serialization task \citep{eriguchi2016tree,eriguchi2016character}. However, the tree representation is also useful for localizing information. Furthermore, as \citep{Socher2011-nx} showed, tree-to-value clearly captures sentiment. The idea that locality is more accurately captured in trees seems natural and could plausibly replace the (somewhat {\it ad hoc}) input reversal in Seq2Seq. 
+\citet{chen2017improved} showed improvements in machine translation by incorporating a tree encoder; however, their decoder remains sequence based.
+
+\subsection{Sequence-to-Tree}
+Sequence-to-Tree transformation is a more well-studied problem, since it includes parsing and neural parsing has achieved state-of-the-art results \citep{aharoni2017towards} and hence garnered much attention.  There are two main differences between these methods and our approach, 1) other decoders are breadth based, and 2) many sequence-to-tree problems, particularly dependency parsing, are fundamentally not tree-to-tree. 
+
+Recently, several neural tree decoders have been proposed. The models most similar to our approach are the SEQ2TREE~\citep{Dong2016-qq}, top-down tree LSTMs~\citep{Zhang2015-bg}, and the double recurrent neural networks~\citep{alvarez2017tree}. All of their neural decoders, while somewhat similar to our approach, differ in important ways from our decoder. Most importantly, all of these methods use top down breadth first search, whereas our model is depth first.
+
+\citet{Dong2016-qq} used stack based production rules using a hierarchical decoder; however, SEQ2TREE does not explicitly do context sensitive production. Top-down tree LSTMs~\citep{Zhang2015-bg} have four independent LSTMs for decoding, which require expensive explicit tree serialization and thus more parameters than we use. While doubly recurrent NNs ~\citep{alvarez2017tree} do not suffer from the issue of multiple independent LSTMs, it does require explicit differentiation predictions of both terminal nodes and subsequently node labels.
+
+%Tree decoders are in theory independent of the encoder scheme and can be adapted for tree-to-tree learning, but such adaptation is not trivial.
+
+
+%The two most similar to our work are doubly recurrent neural networks~\citep{alvarez2017tree} and top-down tree LSTMs~\citep{Zhang2015-bg}.
+
+Direct comparison of our tree-to-tree method on the problems addressed in these seq-to-tree papers is not possible. Dependency parsing, as done in \citep{Zhang2015-bg} is inherently sequence-to-tree, and does not map cleanly onto any tree-to-tree problem. Also, top-down tree LSTMs ~\citep{Zhang2015-bg} have four independent LSTMs for decoding, which require expensive explicit tree serialization and thus more parameters than we use.
+Mapping sentences to functional programs, as done in \citep{alvarez2017tree,Dong2016-qq} could be made into a tree-to-tree problem by parsing the sentences into trees, but their approach uses explicitly constructed n-ary trees where each level is restricted to a given label type.
+While doubly recurrent NNs ~\citep{alvarez2017tree} do not suffer from the issue of multiple independent LSTMs, they do require explicit differentiation predictions of both terminal nodes and subsequently node labels.
+Our depth first search allows us, at the cost of maintaining a stack, to avoid the problem of the separation of the point at which the label and the child node is predicted, which drove the need for double recurrence in the prior work. 
+
+
+\section{Tree-to-Tree Model}
+
+Our neural tree transducer uses an encoded representation of the input tree $S$ together with the generative decoder model described below to predict the output tree $T$. 
+% our notation although non-standard follows the notation of lapata
+%\jcs{Maybe here just spell out the notation explicitly also relate the notation back to pure sequence to sequence ... so why an I using $x^i$ instead of $x_i$ } 
+The tree $T$ is conditional on $S$ such that the conditional probability, $P(T \mid S) = \prod_{p \in Trav(T)}{P(x^p \mid x^{1}, \ldots, x^{p-1},\hbox{enc}(S))}$ where $Trav(T)$ is the sequence of integers indexing the tree traversal, and $x^p$ is the random variable representing the label of the node at the p-th step of the traversal. Thus $P(x^p)$ is the probability distribution over the labels at the p-th node. The encoder function, $\hbox{enc}(S)$, generates a $k$-dimensional encoding of a source tree, $\hbox{enc}: S \to \mathbb{R}^k$. In general, the encoder does not need to be a tree encoder. However, concretely, we used a TreeLSTM for encoding the input tree $S$.
+
+The decoder for our tree-to-tree transducer can be viewed as a context sensitive grammar. For this reason in the supplemental material we introduce the formal notation of the probablistic context free grammar (PCFG) which is the theoretical grounding of our model and relates back to previous literature on tree transduction. 
+
+
+
+\subsection{Neural Tree Decoder}
+
+Unlike in sequence learning, which is simply left-to-right or vice versa, tree-based encoding and decoding requires us to select a tree traversal path.  Thus, in order to properly define the probability structure over the tree we specify the one-to-one serialization of the binary tree to a sequence.
+We first start by defining a probabilistic model over trees, which is dependent on the tree traversal (or serialization). Next, we relate the tree decoding to production rules, first using the probabilistic context free grammar, and then we develop the our decoder model which is a probabilistic context sensitive model specification of our neural decoder. 
+
+\begin{figure}[tbh!]
+\centering
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 5cm/#1,
+  level distance = 1.5cm}] 
+\node [arn_x] {\ \ (a + b) $*$ c \ \ }
+    child{ node [arn_x] {*}
+        child{ node [arn_x] {+}
+            child{ node [arn_x] {a}}
+            child{ node [arn_x] {b}}
+        }
+        child{ node [arn_x] {c}}
+    }
+; 
+\end{tikzpicture}
+\caption{Example binary tree for ( a + b ) * c.} \label{fig:tree_motivation}
+\end{figure}
+
+Figure \ref{fig:tree_motivation}
+shows a tree encoding for \ (a + b) $*$ c. An example explicit serialization of the tree is  ``
+node  \{*\}
+        child\{ node  \{+\}
+            child\{ node  \{a\}\}
+            child\{ node  \{b\}\}
+        \}
+        child\{ node  \{c\}\}
+; 
+.''
+While this is a general notation, we can further simplify to serializing the tree as \{ * \{ + \{ a \} \{ b \} \} \{ c \} \} where a subtree is decorated by \{ \}. This tree representation is from a depth first (or left most) derivation. This is also otherwise known as a prefix notation. (One can rewrite the infix notation \ \ (a + b) $*$ c \ \ into prefix notation $*$ + a b c.) However, in general if an interior node can have only a left or a right child we need minimally use \} to decorate the sequence, so  *  +  a \}  b \} \}  c \} \} would be a minimal representation.
+ 
+We require our serial representations to be one-to-one with trees.  Thus, a probability distribution over such sequences uniquely corresponds to a probability distribution over trees. There are several ways of serializing trees, which lead to different probability distributions over the resulting strings. 
+Thus, a simple representation for probability over trees requires a good choice for serialization and then a restriction over the probability distribution of these strings.
+ 
+The derivation path $Trav(T)$ is the traversal sequence of the tree. The function $Trav(\cdot)$ takes a tree as its argument and outputs a sequence which corresponds to the derivation path. 
+%{\bf I.e, the domain of P() is trees, and its range sequences.} 
+Focusing on the depth first derivation, we can see that the probability of the probability distribution over the p-th output of $x^p$ is conditional on the previous output, so we can write the probability of the next observation $b$ as $P(x^4=b \mid  x^1=*, x^2=+, x^3=a)$.
+%  
+
+
+Thus, we can generalize to
+\[
+P(x^p \mid x^{1}, \ldots,x^{p-1}).
+\]
+And thus, we can say that the probability of the tree $T$, $P(T)$,  is the serialization sequence
+\[
+P(T) = \prod_{p \in Trav(T)}{P(x^p \mid x^{1}, \ldots, x^{p-1})} \equiv \prod_{p = 1}^{Trav(T)} P_{p-1}(x^p).
+\]
+
+Mapping from one tree to another constitutes a grammar and to understand how our neural tree transducer works we review for context sensitive and context free grammar transduction works.
+%
+In order to serialize the tree, a set of production rules is required. Thus, in the following sections we describe a formal model of serialization using production rules, starting with the simplest model, context free production rules. We then generalize these context free grammars to make them context sensitive by taking into account the left sibling subtree when producing the right sibling.
+
+\subsubsection{Neural Model Specification}
+
+We use can use any recurrent neural network model for representing the information passed down from the root to the p-th node $G$, and for the encoding of the left subtree, $H$ we can use any recursive neural network model. 
+
+The recurrent neural network, $G$, and the recursive neural network, $H$, could be specified as 
+\begin{align*}
+    h^{\mathcal{P}} &= \hbox{tanh}(V^{\mathcal{P}}h^{f(p)} + U^{\mathcal{P}} x^{f(p)} + b^{\mathcal{P}}) \\
+    h^{\mathcal{LS}} &= \hbox{tanh}\big(V^{\mathcal{LS}_l}h^{C_l((f(p)+1))} + V^{\mathcal{LS}_r}h^{C_r((f(p)+1))}  +   U^{\mathcal{LS}} x^{f(p)+1} + b^{\mathcal{LS}}\big),
+\end{align*}
+where $C_l$ and $C_r$ are functions which return the left and right direct children respectively, and $x^{f(p)+1}$ is the left sibling of $x^p$. As previously defined  $\mathcal{LS}_p$ extracts the left subtree sequence for an entry $x^p$. If $x^p$ is a left child or the root then $h^{\mathcal{LS}} = 0$. The matrices $V^{\mathcal{P}}, U^{\mathcal{P}}, V^{\mathcal{LS}_l}, V^{\mathcal{LS}_r}, U^{\mathcal{LS}}$ are estimated, and differ from the functions $U$ and $V$. 
+
+In this paper, an LSTM and a binary TreeLSTM were used for $G$ and $H$, respectively. %Generalization to non-binary trees is straightforward.
+
+Finally, we can write $g(x|h^{\mathcal{P}}, h^{\mathcal{LS}}) = \mathrm{softmax}(W^{\mathcal{P}}h^{\mathcal{P}} + W^{\mathcal{LS}}h^{\mathcal{LS}} + b)$. 
+As a direct result, 
+\begin{align*}
+P(x^p=x_i|x^1,\ldots,x^{p-1}) &= P(x^p=x_i \mid G(\mathcal{P}_p), H(\mathcal{LS}_p)) \\
+&=  \frac{g(x_i \mid  h^{\mathcal{P}}, h^{\mathcal{LS}})}{\sum_{j=1}^{|V|}{g(x_j \mid  h^{\mathcal{P}}, h^{\mathcal{LS}})}},
+\end{align*}
+where $x_i$ and $x_j$ represent symbols in the vocabulary, and $|V|$ is the number of symbols in the vocabulary. Figure~\ref{fig:treeproduction} shows a concrete example of the decoder.
+
+\subsubsection{Batch Implementation -- Stack Processing}
+
+A naive implementation of Tree2Tree encoding and decoding does not allow for efficient batching. Unlike Seq2Seq, where there are a small number of computational graphs, the simplest approach to has a new computational graph for almost every pair since the computational graph is specific to the exact tree topology~\citep{bowman2016fast,dyer2016recurrent,looks2017deep}. 
+
+For the neural encoder, we use the Stack augmented
+Parser-Interpreter Neural Network (SPINN)~\citep{bowman2016fast}, and augment the tracker in order to store all intermediate states for the decoder attention. The neural decoder is a further extension of SPINN with an additional computation at a stack push where {\bf SHIFT:} we compute the parent path representation, $G(\cdot)$ (which is stored in the tracker) and the {\bf REDUCE:} step will not only encoder the left subtree, $H(\cdot)$, but also subsequently store the encoded subtree. In our tracker, we store the node location, subtree encode states as well as the parent derivation hidden state.
+
+\jcs{Should I include a figure?}
+
+\section{Experiments}
+%\begin{itemize}
+%    \item Tree copy - Seq2Seq - three serializations - 1)  full structure 2) balance parenthetic 3) compressed parenthetic 
+%    \item Infix to prefix tree - tree reordering
+%    \item Tree relabeling
+%    \item Tree node deletion
+%\end{itemize}
+
+%\subsection{Tree Manipulations}
+
+\input{tikz_synth_tasks}
+
+%\begin{wrapfigure}{r}{0.5\textwidth}
+%%\begin{figure}
+%\begin{center}
+%\includegraphics[width=0.6\columnwidth]{exp.png}
+%\label{fig:synth_tasks}
+%\end{center}
+%%\end{figure}
+%\end{wrapfigure}
+
+We evaluated the different methods using tree edit distance (TED) \citep{tai1979tree,bille2005survey} between the predicted tree and the actual tree. TED is the number of insertions, deletions, and modifications to make the two trees equivalent, while aligning the trees. In order to assess the tree-to-tree transduction rules which the models could learn, we chose four standard tree tasks 1) tree copy, 2) tree reordering, 3) node relabeling, and 4) node and subtree deletion. Our experiments are similar to those of \citet{grefenstette2015learning}; however, we explicitly isolate complex tree reordering, subtree deletion, and context sensitive relabeling.
+
+
+
+{\bf Tree Copy and Simple Node Relabeling}
+While tree copying seems to be trivial, it shows that both Seq2Seq and Tree2Tree can perform copies. The NTT does not reverse order, but instead encodes the tree bottom up and left to right. One interesting observation is that Tree2Tree training required more training examples.
+
+For tree copying, we simply validated that all of the models could copy a tree. For simple relabeling, we used context free relabeling rules to change from one vocabulary to another, so $1 \rightarrow a$. (See Figure 3.)
+
+%\input{tikz_simp_relabel}
+%\input{tikz_synth_tasks}
+
+
+
+
+{\bf Complex Node Relabeling}
+For complex relabeling, or context sensitive relabeling, we took a tree with arbitrary labels and transformed it into a tree where the labels are reordered. We tried two subtasks, the first where the left sibling was required to be smaller than the right sibling. The second, more complex, task required the right sibling to be less than the left subtree. This causes the tree to be ordered.
+
+%\input{tikz_complex_relabel}
+
+
+{\bf Tree Reordering}
+For tree reordering, we generated examples by taking mathematical expressions in reverse polish (or prefix notation) and transforming them infix notation. This process is a non-trivial tree reordering. However, there is no node relabeling, so it isolates the reordering capability of the NTT model. As expected, this is where the most benefit of the NTT model was found.
+
+%\input{tikz_reordering}
+
+{\bf Subtree deletion}
+For our final experiment, we focused on deletion rules. Here we created transduction rules to delete a subtree and replace it with a new symbol. %\jcs{why? What an I learning?}
+%\input{tikz_deletion}
+
+\subsection{Settings}
+Throughout our experiments we chose a maximum tree depth of 6 and vocabulary size of 256. 
+
+For our baseline Seq2Seq model, we used a two layer LSTM with 256 dimensions for both the hidden units and the memory cell with a bidirectional encoder and we also used the same formulation for the Seq2Seq with attention. Our Neural Tree Transducer (NTT) used a binary TreeLSTM for the encoder with a 256 dimensional hidden state space. The left subtree encoder was also a binary TreeLSTM, but with only one layer and the parent derivation was a LSTM with one hidden layer with 256 hidden units. 
+
+We used teacher forcing and curriculum learning. For all models we used the Adam optimizer~\citep{kingma2014adam} with an initial learning rate of 0.001,  a dropout ratio of 0.2 and gradient clipping at 5.0. The models were trained until the development accuracy no longer improved. 
+
+
+\subsection{Results}
+Results are shown in Table \ref{tab:t2tresults}, and discussed below.
+For the task of simple relabeling, both Seq2Seq-Attn and NTT models perform nearly perfectly, which shows (not surprisingly) that the simple relabeling is not difficult. The Seq2Seq model without attention uniformly performs worse; the attention mechanism greatly aids relabeling. However, for complex relabeling the NTT performs much better than the Seq2Seq attention model. This is to be expected, as context sensitive relabeling relies heavily on the left subtree. Furthermore, the Seq2Seq model performs only sightly above the no edit case where the prediction is the original tree. In comparing the reordering, the NTT also greatly outperforms the baselines. Again, this is expected as the localization of a reordering is much easier in the NTT model. Finally, for deletion the NTT does not largely outperform Seq2Seq with attention model. The deletion is localized to a subsequence of the serialization. As a result, the attention model seems to be able to accurately ``forget'', while for the NTT model this is a equivalent to a relabeling task.
+
+%\jcs{Fixed vocabulary size makes the problem more complex; however, the results are similar for depth based vocabulary sizes.}
+
+\begin{table*}[tbh!]
+    \centering
+    \begin{tabular}{l l|c c c c}
+         {\bf Task} & {\bf Method} &  & & {\bf Tree Depth} & \\ 
+         & & 3 & 4 & 5 & 6 \\ \hline
+         & Seq2Seq & 0.04& 0.12 & 0.98 & 2.43\\
+         Simple Relabeling & Seq2Seq-Attn & {\bf 0} & {\bf 0} & 0.36 & 0.72 \\
+         ( basically copying ) & NTT & {\bf 0} & {\bf 0} & {\bf 0} & {\bf 0.56} \\ \hline
+         & Seq2Seq & 0.55 & 1.40 & 3.40 & 9.62\\
+         Complex Relabeling & Seq2Seq-Attn & 0.27 & 1.05 & 2.32 & 6.03\\
+         & NTT & {\bf 0.17} & {\bf 0.41} & {\bf 0.96} & {\bf 3.76}\\ \hline
+         & Seq2Seq & 0.25 & 1.69 & 4.33 & 13.47\\
+         Reordering & Seq2Seq-Attn & 0.21 & 1.26 & 3.36 & 10.93 \\
+         & NTT & {\bf 0.11} & {\bf 1.07} & {\bf 2.15} & {\bf 5.01}\\ \hline
+         & Seq2Seq & 0.15 & 0.61 & 1.44 & 6.23\\
+         Deletion & Seq2Seq-Attn & {\bf 0.13} & 0.39 & 0.81 & 2.57\\
+         & NTT & {\bf 0.13} & {\bf 0.38} & {\bf 0.72} & {\bf 2.32} \\ \hline
+         
+         
+    \end{tabular}
+    \caption{Tree edit distance for the tree tasks of tree copying (Copy), subtree reordering (Reordering),  node relabeling (Relabeling) and node and subtree deletion (Deletion). The models are sequence-to-sequence \citep{sutskever2014sequence} (Seq2Seq), sequence-to-sequence with attention~\citep{bahdanau2014neural} (Seq2Seq-Attn), and our neural tree transducer method (NTT).}
+    \label{tab:t2tresults}
+\end{table*}
+
+\section{Conclusion and Future Work}
+We introduced a neural tree transduction (NTT) model which learns  Tree2Tree transformations and presented a novel and intuitive context sensitive depth first decoder based on context sensitive grammars. Our NTT model was evaluated over several standard tree tasks and showed superior performance relative to Seq2Seq models. For tree transduction tasks such as syntactic machine translation, tree code based optimization, and text simplification, tree-to-tree is an essential component which is not easily captured by Seq2Seq models. 
+
+
+Unlike top down breadth first decoders, our NTT method naturally lends itself to streaming decoding~\citep{alur2012streaming}. Streaming decoding would allow for arbitrary depth decoding and a parallel encoding/decoding scheme. Another immediate improvement to our model would be to incorporate tree attention as in the work of~\citet{munkhdalai2016neural}, which have applied attention to tree alignment. Finally, we intend to apply our method to syntactic machine translation~\citep{cowan2008tree} (translating from a dependency parse in one language to the parse in another language), text simplification~\citep{find paper again}, and program optimization.
+
+
+\small
+\bibliography{tree_learning}
+\bibliographystyle{acl_natbib}
+
+\end{document}
